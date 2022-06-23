@@ -1,0 +1,19 @@
+.adminScheduleContainer {
+  margin: 0 50px;
+}
+.adminScheduleTitle {
+  text-align: center;
+  padding-top: 50px;
+  margin-bottom: 50px;
+}
+.adminScheduleDates {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 50px;
+}
+.adminIconArrows {
+  display: flex;
+  justify-content: space-around;
+  align-items: space-between;
+  width: 150px;
+}

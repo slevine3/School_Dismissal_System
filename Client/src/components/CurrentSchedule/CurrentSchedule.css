@@ -1,0 +1,7 @@
+.currentScheduleContainer {
+}
+
+.currentScheduleDates {
+  display: flex;
+  justify-content: space-around;
+}

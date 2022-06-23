@@ -1,0 +1,19 @@
+.homeContainer {
+}
+
+.homeTitle {
+  text-align: center;
+  padding-top: 50px;
+  padding-bottom: 30px;
+}
+.homeComponentContainer {
+  display: flex;
+  flex-direction: column;
+  margin: 0 50px;
+  border: 2px solid black;
+}
+
+.homeButton {
+  display: flex;
+  justify-content: center;
+}

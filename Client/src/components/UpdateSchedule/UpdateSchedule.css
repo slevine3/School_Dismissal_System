@@ -1,0 +1,19 @@
+.updateContainer {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  background-color: lightblue;
+  height: 100vh;
+}
+.updateContainerList {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.updateTitle {
+  text-align: center;
+  margin-bottom: 50px;
+  padding-top: 50px;
+}
