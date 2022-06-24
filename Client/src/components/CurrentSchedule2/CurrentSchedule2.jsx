@@ -1,4 +1,6 @@
-import { Badge, Calendar } from 'antd';
+import { Badge, Calendar } from "antd";
+import { useEffect, useState } from "react";
+import { axiosInstance } from "../../requestMethods";
 
 const getListData = (value) => {
   let listData;
@@ -7,12 +9,12 @@ const getListData = (value) => {
     case 8:
       listData = [
         {
-          type: 'warning',
-          content: 'This is warning event.',
+          type: "warning",
+          content: "This is warning event.",
         },
         {
-          type: 'success',
-          content: 'This is usual event.',
+          type: "success",
+          content: "This is usual event.",
         },
       ];
       break;
@@ -20,16 +22,16 @@ const getListData = (value) => {
     case 10:
       listData = [
         {
-          type: 'warning',
-          content: 'This is warning event.',
+          type: "warning",
+          content: "This is warning event.",
         },
         {
-          type: 'success',
-          content: 'This is usual event.',
+          type: "success",
+          content: "This is usual event.",
         },
         {
-          type: 'error',
-          content: 'This is error event.',
+          type: "error",
+          content: "This is error event.",
         },
       ];
       break;
@@ -37,28 +39,28 @@ const getListData = (value) => {
     case 15:
       listData = [
         {
-          type: 'warning',
-          content: 'This is warning event',
+          type: "warning",
+          content: "This is warning event",
         },
         {
-          type: 'success',
-          content: 'This is very long usual event。。....',
+          type: "success",
+          content: "This is very long usual event。。....",
         },
         {
-          type: 'error',
-          content: 'This is error event 1.',
+          type: "error",
+          content: "This is error event 1.",
         },
         {
-          type: 'error',
-          content: 'This is error event 2.',
+          type: "error",
+          content: "This is error event 2.",
         },
         {
-          type: 'error',
-          content: 'This is error event 3.',
+          type: "error",
+          content: "This is error event 3.",
         },
         {
-          type: 'error',
-          content: 'This is error event 4.',
+          type: "error",
+          content: "This is error event 4.",
         },
       ];
       break;
@@ -76,6 +78,21 @@ const getMonthData = (value) => {
 };
 
 const CurrentSchedule2 = () => {
+  const [students, setStudents] = useState(null);
+  const [user_id, setUser_id] = useState(1);
+
+  useEffect(() => {
+    const getSchedule = async () => {
+      try {
+        const response = await axiosInstance.get("/user", { user_id });
+        console.log(response.data);
+        setStudents(response.data.standardStudents);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getSchedule();
+  }, []);
 
   const monthCellRender = (value) => {
     const num = getMonthData(value);
@@ -100,7 +117,12 @@ const CurrentSchedule2 = () => {
     );
   };
 
-  return <Calendar dateCellRender={dateCellRender} monthCellRender={monthCellRender} />;
+  return (
+    <Calendar
+      dateCellRender={dateCellRender}
+      monthCellRender={monthCellRender}
+    />
+  );
 };
 
 export default CurrentSchedule2;

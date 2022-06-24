@@ -7,50 +7,8 @@ import { useState } from "react";
 import { StarOutlined, StarFilled, StarTwoTone } from "@ant-design/icons";
 import { getTwoToneColor, setTwoToneColor } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-const columns = [
-  {
-    title: "Name",
-    dataIndex: "name",
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: "Monday (6/20)",
-    dataIndex: "time",
-  },
-  {
-    title: "Tuesday (6/21)",
-    dataIndex: "time",
-  },
-  {
-    title: "Wednesday (6/22)",
-    dataIndex: "time",
-  },
-  {
-    title: "Thursday (6/23)",
-    dataIndex: "time",
-  },
-  {
-    title: "Friday (6/24)",
-    dataIndex: "time",
-  },
-];
-const data = [
-  {
-    key: "1",
-    name: "John Brown",
-    time: "3:00pm",
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    time: "3:00pm",
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    time: "3:00pm",
-  },
-]; // rowSelection object indicates the need for row selection
+import { useEffect } from "react";
+import { axiosInstance } from "../../requestMethods";
 
 const rowSelection = {
   onChange: (selectedRowKeys, selectedRows) => {
@@ -68,11 +26,26 @@ const rowSelection = {
 };
 
 const AdminSchedule = () => {
+  useEffect(() => {
+    const getSchedule = async () => {
+      try {
+        const response = await axiosInstance.get("/admin/");
+        console.log(response.data);
+        setStandardStudents(response.data.standardStudents);
+        setModifiedStudents(response.data.modifiedStudents);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getSchedule();
+  }, []);
   //TODAY'S DATE
   const date = new dayjs();
-  console.log();
+
   const [selectionType, setSelectionType] = useState("checkbox");
   const [quarterValue, setQuarterValue] = useState(null);
+  const [standardStudents, setStandardStudents] = useState(null);
+  const [modifiedStudents, setModifiedStudents] = useState(null);
 
   const [todayDate, setTodayDate] = useState(
     date.format("dddd, MMMM D, YYYY ")
@@ -82,15 +55,58 @@ const AdminSchedule = () => {
   const handleDateChange = (date, dateString) => {
     setQuarterValue(dateString);
   };
-  
- //RETRIEVE DATA FOR PREVIOUS WEEK
-  const handlePreviousWeek = () => {
-   
-  };
-   //RETRIEVE DATA FOR NEXT WEEK
-  const handleNextWeek = () => {
-   
-  };
+
+  //RETRIEVE DATA FOR PREVIOUS WEEK
+  const handlePreviousWeek = () => {};
+  //RETRIEVE DATA FOR NEXT WEEK
+  const handleNextWeek = () => {};
+
+  const modifiedColumns = [
+    {
+      title: "First Name",
+      dataIndex: "first_name",
+    },
+    {
+      title: "Last Name",
+      dataIndex: "last_name",
+    },
+    {
+      title: "Time",
+      dataIndex: "dismissal_timestamp",
+    },
+    {
+      title: "Method",
+      dataIndex: "dismissal_method",
+    },
+    {
+      title: "Reason",
+      dataIndex: "reason",
+    },
+  ];
+
+  const standardColumns = [
+    {
+      title: "First Name",
+      dataIndex: "first_name",
+    },
+    {
+      title: "Last Name",
+      dataIndex: "last_name",
+    },
+    {
+      title: "Time",
+      dataIndex: "dismissal_timestamp",
+    },
+    {
+      title: "Method",
+      dataIndex: "dismissal_method",
+    },
+  ];
+
+  const modifiedData =
+    modifiedStudents && modifiedStudents.map((student) => student);
+  const standardData =
+    standardStudents && standardStudents.map((student) => student);
 
   return (
     <div className="adminScheduleContainer">
@@ -98,29 +114,29 @@ const AdminSchedule = () => {
         <h1>Admin Schedule</h1>
       </div>
       <div className="adminScheduleDates">
-      <DatePicker onChange={handleDateChange} />
         <h2> {todayDate}</h2>
-        <div className="adminIconArrows">
-          <ArrowLeftOutlined
-            style={{ fontSize: "24px", color: "#08c" }}
-            onClick={handlePreviousWeek}
-          />
-          <ArrowRightOutlined
-            style={{ fontSize: "24px", color: "#08c" }}
-            onClick={handleNextWeek}
-          />
-        </div>
       </div>
 
       <Divider />
-
+      <h1>Modified Dismissals</h1>
       <Table
-        rowSelection={{
-          type: selectionType,
-          ...rowSelection,
-        }}
-        columns={columns}
-        dataSource={data}
+        // rowSelection={{
+        //   type: selectionType,
+        //   ...rowSelection,
+        // }}
+        columns={modifiedColumns}
+        dataSource={modifiedData}
+      />
+
+      <Divider />
+      <h1>Standard Dismissals</h1>
+      <Table
+        // rowSelection={{
+        //   type: selectionType,
+        //   ...rowSelection,
+        // }}
+        columns={standardColumns}
+        dataSource={standardData}
       />
     </div>
   );

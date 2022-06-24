@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import "./UpdateSchedule.css";
 import { DatePicker, Radio, TimePicker, Checkbox } from "antd";
 import dayjs from "dayjs";
+import { useForm } from "antd/lib/form/Form";
 const { RangePicker } = DatePicker;
 
 const UpdateSchedule = () => {
+const {register} = useForm
+
   const [radio, setRadio] = useState("single");
   const [dateString, setDateString] = useState(null);
   const [timeString, setTimeString] = useState(null);
@@ -66,7 +69,7 @@ const UpdateSchedule = () => {
   const handleRadioChange = (e) => {
     setRadioValue(e.target.value);
   };
-  console.log(radioValue);
+ 
   return (
     <div className="updateContainer">
       <h1 className="updateTitle">New Dismissal</h1>
