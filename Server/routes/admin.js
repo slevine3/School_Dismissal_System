@@ -3,18 +3,14 @@ const db = require("../config");
 const dayjs = require("dayjs");
 
 const todayDate = dayjs().format("MM/DD/YYYY");
-
+console.log(todayDate);
 router.get("/", async (req, res) => {
-
-
   try {
     const standardStudents = await db("students")
       .select("*")
       .innerJoin("schedule", "students.student_id", "schedule.student_id")
-      .whereNot("date_start", todayDate)
       .where("occurrence", "standard")
-      .orderBy("last_name", "asc")
-    
+      .orderBy("last_name", "asc");
 
     const modifiedStudents = await db("students")
       .select("*")
@@ -22,6 +18,18 @@ router.get("/", async (req, res) => {
       .where("date_start", todayDate)
       .orderBy("last_name", "asc");
 
+    //REMOVE MODIFIED STUDENTS FROM STANDARD STUDENTS
+    for (let i = 0; i < standardStudents.length; i++) {
+      let standard_id = standardStudents[i].student_id;
+
+      for (let j = 0; j < modifiedStudents.length; j++) {
+        let modified_id = modifiedStudents[j].student_id;
+
+        if (standard_id === modified_id) {
+          standardStudents.splice(i, 1);
+        }
+      }
+    }
 
     res.status(200).json({ standardStudents, modifiedStudents });
   } catch (error) {
