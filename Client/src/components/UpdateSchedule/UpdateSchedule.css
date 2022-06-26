@@ -1,19 +1,42 @@
 .updateContainer {
   display: flex;
   flex-direction: column;
-
   align-items: center;
-  background-color: lightblue;
+  width: 100vw;
   height: 100vh;
+  background-color: lightcoral;
 }
 .updateContainerList {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
+  width: 100vw;
 }
 .updateTitle {
   text-align: center;
   margin-bottom: 50px;
   padding-top: 50px;
+}
+.updateSingleForm {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100vw;
+  background-color: lightcoral;
+  padding-bottom: 50px;
+}
+
+.updateTable {
+  -webkit-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
+  padding: 0 50px;
+  background-color: white;
+}
+.updateSingleFormProperties {
+  -webkit-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
+  width: 600px;
+  padding: 50px 50px;
+  background-color: white;
 }

@@ -4,6 +4,9 @@ const dayjs = require("dayjs");
 
 const todayDate = dayjs().format("MM/DD/YYYY");
 console.log(todayDate);
+
+//GET ALL STUDENTS FOR ADMIN SCHEDULE
+
 router.get("/", async (req, res) => {
   try {
     const standardStudents = await db("students")
@@ -16,7 +19,7 @@ router.get("/", async (req, res) => {
       .select("*")
       .innerJoin("schedule", "students.student_id", "schedule.student_id")
       .where("date_start", todayDate)
-      .orderBy("last_name", "asc");
+      .orderBy("dismissal_timestamp", "asc");
 
     //REMOVE MODIFIED STUDENTS FROM STANDARD STUDENTS
     for (let i = 0; i < standardStudents.length; i++) {

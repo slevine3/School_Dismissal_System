@@ -85,7 +85,7 @@ const CurrentSchedule2 = () => {
     const getSchedule = async () => {
       try {
         const response = await axiosInstance.get("/user", { user_id });
-        console.log(response.data);
+    
         setStudents(response.data.standardStudents);
       } catch (error) {
         console.log(error);

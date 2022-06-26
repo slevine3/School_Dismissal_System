@@ -30,7 +30,7 @@ const AdminSchedule = () => {
     const getSchedule = async () => {
       try {
         const response = await axiosInstance.get("/admin/");
-        console.log(response.data);
+
         setStandardStudents(response.data.standardStudents);
         setModifiedStudents(response.data.modifiedStudents);
       } catch (error) {
@@ -107,6 +107,20 @@ const AdminSchedule = () => {
     modifiedStudents && modifiedStudents.map((student) => student);
   const standardData =
     standardStudents && standardStudents.map((student) => student);
+
+  //ADD KEY TO MODIFIED DATA ACCORDING TO STUDENT_ID
+  for (let student in modifiedData) {
+    if (!(Object.keys === "key")) {
+      modifiedData[student]["key"] = modifiedData[student].student_id;
+    }
+  }
+
+  //ADD KEY TO STANDARD DATA ACCORDING TO STUDENT_ID
+  for (let student in standardData) {
+    if (!(Object.keys === "key")) {
+      standardData[student]["key"] = standardData[student].student_id;
+    }
+  }
 
   return (
     <div className="adminScheduleContainer">
