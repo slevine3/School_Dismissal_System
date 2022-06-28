@@ -57,13 +57,13 @@ const UpdateSchedule = () => {
   //VARIABLES FROM FORMS
 
   const [singleDate, setSingleDate] = useState(true);
-  // const [dateRange, setDateRange] = useState(false);
   const [recurringDates, setRecurringDates] = useState(false);
-  const [checkboxValues, setCheckboxValues] = useState(null);
-  const [radioValue, setRadioValue] = useState("weekly");
+
   const [selectedStudents, setSelectedStudents] = useState(null);
 
   //HANDLECLICK USED TO SWITCH BETWEEN FORMS (CHANGES DISPLAY FLEX/NONE)
+  //ALSO USED FOR LOGIC TO DETERMINE WHICH FORM TO SUBMIT (inside of handleRangeAndRecurringSubmit)
+
   const handleClick = (e) => {
     let value = e.target.value;
 
@@ -81,30 +81,13 @@ const UpdateSchedule = () => {
       setRecurringDates(true);
     }
   };
-  //DATE RANGE
-  const onChange = (date, dateString) => {
-    // setDateRange(dateString);
-    console.log('date:', date)
-    console.log('dateString: ', dateString)
-  };
 
-  const onOk = (value) => {
-    console.log("onOk: ", value);
-  };
-
-  //CHECKBOX HANDLECHANGE AND VALUES (M/T/W/Th/F) FOR RECURRING DATE
-  const handleCheckboxChange = (checkedValues) => {
-    setCheckboxValues(checkedValues);
-  };
-
+  //VALUES FOR RECURRING DATES
   const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const radio = ["Weekly", "Monthly"];
 
-  //RADIO BUTTONS HANDLECHANGE AND VALUES (weekly/monthly) FOR RECURRING DATE
-  const handleRadioChange = (e) => {
-    setRadioValue(e.target.value);
-  };
   //SINGLE DATE FORM SUBMIT
-  const handleSingleSubmit = (data, e) => {
+  const handleSingleSubmit = async (data, e) => {
     const dismissal_date = data.datePicker;
     const dismissal_time = data.timePicker;
     const reason = data?.reason;
@@ -117,7 +100,7 @@ const UpdateSchedule = () => {
     let formattedTime = dayjs(time).format("HH:mm:ss");
 
     try {
-      const response = axiosInstance.post("/user/single", {
+      const response = await axiosInstance.post("/user/single", {
         formattedDate,
         formattedTime,
         reason,
@@ -128,346 +111,404 @@ const UpdateSchedule = () => {
       console.log(error);
     }
   };
-  //DATE RANGE FORM SUBMIT
-  const handleDateRangeSubmit = (data, e) => {
-    const dismissal_date_start = data.datePicker;
-    const dismissal_date_end = data.datePicker;
+  //DATE RANGE AND RECURRING DATES FORM SUBMIT
+  const handleRangeAndRecurringSubmit = async (data, e) => {
+    console.log("data: ", data);
+
+    const dismissal_date_start = data.rangePicker[0];
+    const dismissal_date_end = data.rangePicker[1];
     const dismissal_time = data.timePicker;
     const reason = data?.reason;
     const dismissal_method = data.dismissal_method;
+    const checkbox = data?.checkbox;
+    const radio = data?.radio;
 
     let date_start = Object.values(dismissal_date_start)[4];
     let formattedDate_start = dayjs(date_start).format("M-D-YYYY");
 
-    let date_end = Object.values(dismissal_date_start)[4];
+    let date_end = Object.values(dismissal_date_end)[4];
     let formattedDate_end = dayjs(date_end).format("M-D-YYYY");
 
     let time = Object.values(dismissal_time)[4];
     let formattedTime = dayjs(time).format("HH:mm:ss");
 
-    try {
-      const response = axiosInstance.post("/user/range", {
-        formattedDate_start,
-        formattedDate_end,
-        formattedTime,
-        reason,
-        dismissal_method,
-        selectedStudents,
-      });
-      console.log(response.data);
-    } catch (error) {
-      console.log(error);
+    //LOGIC TO DETERMINE IF THIS IS A RECURRING OR A DATE RANGE POST
+    if (recurringDates) {
+      try {
+        const response = await axiosInstance.post("/user/recurring", {
+          formattedDate_start,
+          formattedDate_end,
+          formattedTime,
+          reason,
+          dismissal_method,
+          checkbox,
+          radio,
+          selectedStudents,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      try {
+        const response = await axiosInstance.post("/user/range", {
+          formattedDate_start,
+          formattedDate_end,
+          formattedTime,
+          reason,
+          dismissal_method,
+          selectedStudents,
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
   return (
     <div className="updateContainer">
       <h1 className="updateTitle">New Dismissal</h1>
-      <div className="updateContainerList">
-        <Radio.Group
-          style={{ marginBottom: "50px" }}
-          defaultValue="single"
-          size="large"
-        >
-          <Radio.Button onClick={(e) => handleClick(e)} value="single">
-            Single Date
-          </Radio.Button>
-          <Radio.Button onClick={(e) => handleClick(e)} value="range">
-            Date Range
-          </Radio.Button>
-          <Radio.Button onClick={(e) => handleClick(e)} value="recurring">
-            Recurring Dates
-          </Radio.Button>
-        </Radio.Group>
+      <Radio.Group
+        style={{
+          marginBottom: "50px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        defaultValue="single"
+        size="large"
+      >
+        <Radio.Button onClick={(e) => handleClick(e)} value="single">
+          Single Date
+        </Radio.Button>
+        <Radio.Button onClick={(e) => handleClick(e)} value="range">
+          Date Range
+        </Radio.Button>
+        <Radio.Button onClick={(e) => handleClick(e)} value="recurring">
+          Recurring Dates
+        </Radio.Button>
+      </Radio.Group>
 
-        {/* SINGLE DATE PICKER */}
-        <form onSubmit={handleSubmit(handleSingleSubmit)}>
+      {/* SINGLE DATE PICKER */}
+      <form onSubmit={handleSubmit(handleSingleSubmit)}>
+        <div
+          className="updateSingleForm"
+          style={{
+            display: singleDate ? "flex" : "none",
+            textAlign: "center",
+          }}
+        >
           <div
-            className="updateSingleForm"
+            className="updateTable"
             style={{
               display: singleDate ? "flex" : "none",
               textAlign: "center",
             }}
           >
-            <div
-              className="updateTable"
-              style={{
-                display: singleDate ? "flex" : "none",
-                flexDirection: "column",
-                textAlign: "center",
-              }}
-            >
-              <Controller
-                name="students"
-                control={control}
-                render={({ field }) => (
-                  <Table
-                    {...field}
-                    style={{
-                      margin: "30px 0px",
-                    }}
-                    rowSelection={{
-                      type: selectionType,
-                      ...rowSelection,
-                    }}
-                    value={rowSelection}
-                    columns={columns}
-                    dataSource={data}
-                  />
-                )}
-              />
-            </div>
-            <div
-              className="updateSingleFormProperties"
-              style={{
-                display: singleDate ? "flex" : "none",
-                flexDirection: "column",
-                textAlign: "center",
-              }}
-            >
-              <h3>Select a start date</h3>
-              {/* <h3 style={{ color: "#ff0000" }}>{errors.datePicker?.message}</h3> */}
-              <Controller
-                name="datePicker"
-                control={control}
-                render={({ field }) => (
-                  <DatePicker
-                    {...field}
-                    format="dddd, MMMM D, YYYY"
-                    style={{
-                      marginBottom: "30px",
-                    }}
-                    // {...register("datePicker", {
-                    //   required: "*Please select a date",
-                    // })}
-                  />
-                )}
-              />
+            <Controller
+              name="students"
+              control={control}
+              render={({ field }) => (
+                <Table
+                  {...field}
+                  style={{
+                    margin: "30px 0px",
+                  }}
+                  rowSelection={{
+                    type: selectionType,
+                    ...rowSelection,
+                  }}
+                  value={rowSelection}
+                  columns={columns}
+                  dataSource={data}
+                />
+              )}
+            />
+          </div>
+          <div
+            className="updateSingleFormProperties"
+            style={{
+              display: singleDate ? "flex" : "none",
+              flexDirection: "column",
+              textAlign: "center",
+            }}
+          >
+            <h3>Select a start date</h3>
+            {/* <h3 style={{ color: "#ff0000" }}>{errors.datePicker?.message}</h3> */}
+            <Controller
+              name="datePicker"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  format="dddd, MMMM D, YYYY"
+                  style={{
+                    marginBottom: "30px",
+                    width: "250px",
+                  }}
+                  // {...register("datePicker", {
+                  //   required: "*Please select a date",
+                  // })}
+                />
+              )}
+            />
 
-              <h3>Select a dismissal time</h3>
-              <h3 style={{ color: "#ff0000" }}>
-                {errors?.timePicker?.message}
-              </h3>
-              <Controller
-                name="timePicker"
-                control={control}
-                render={({ field }) => (
-                  <TimePicker
-                    {...field}
-                    showTime
-                    size="large"
-                    format="h:mm a"
-                    style={{ marginBottom: "30px" }}
-                    // {...register("timePicker", {
-                    //   required: "*Please select a time",
-                    // })}
-                  />
-                )}
-              />
+            <h3>Select a dismissal time</h3>
+            <h3 style={{ color: "#ff0000" }}>{errors?.timePicker?.message}</h3>
+            <Controller
+              name="timePicker"
+              control={control}
+              render={({ field }) => (
+                <TimePicker
+                  {...field}
+                  showTime
+                  size="large"
+                  format="h:mm a"
+                  style={{
+                    marginBottom: "30px",
+                    width: "250px",
+                  }}
+                  // {...register("timePicker", {
+                  //   required: "*Please select a time",
+                  // })}
+                />
+              )}
+            />
 
-              <h3>Input dismissal method</h3>
-              {/* <h3 style={{ color: "#ff0000" }}>
+            <h3>Input dismissal method</h3>
+            {/* <h3 style={{ color: "#ff0000" }}>
                 {errors?.dismissal_method?.message}
               </h3> */}
-              <Controller
-                name="dismissal_method"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="Example: Parent Pickup"
-                    maxLength={50}
-                    style={{ marginBottom: "30px" }}
-                    // {...register("dismissal_method", {
-                    //   required: "*Dismissal method is required",
-                    // })}
-                  />
-                )}
-              />
+            <Controller
+              name="dismissal_method"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Example: Parent Pickup"
+                  maxLength={50}
+                  style={{
+                    marginBottom: "30px",
+                    width: "250px",
+                    textAlign: "center",
+                  }}
+                  // {...register("dismissal_method", {
+                  //   required: "*Dismissal method is required",
+                  // })}
+                />
+              )}
+            />
 
-              <h3>Input reason for dismissal</h3>
-              {/* <h3 style={{ color: "#ff0000" }}>{errors?.reason?.message}</h3> */}
-              <Controller
-                name="reason"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="Max 50 characters"
-                    maxLength={50}
-                    style={{ marginBottom: "30px" }}
-                    // {...register("reason", {
-                    //   required: "*A reason is required",
-                    // })}
-                  />
-                )}
-              />
+            <h3>Input reason for dismissal</h3>
+            {/* <h3 style={{ color: "#ff0000" }}>{errors?.reason?.message}</h3> */}
+            <Controller
+              name="reason"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Max 50 characters"
+                  maxLength={50}
+                  style={{
+                    marginBottom: "30px",
+                    width: "250px",
+                    textAlign: "center",
+                  }}
+                  // {...register("reason", {
+                  //   required: "*A reason is required",
+                  // })}
+                />
+              )}
+            />
 
-              <Input type="submit" value="Submit Form" />
-            </div>
+            <Input
+              type="submit"
+              value="Submit Form"
+              style={{
+                border: "2px solid black",
+                width: "150px",
+              }}
+            />
           </div>
-        </form>
+        </div>
+      </form>
 
-        {/* DATE RANGE PICKER */}
-        <form onSubmit={handleSubmit(handleDateRangeSubmit)}>
+      {/* DATE RANGE PICKER */}
+      <form onSubmit={handleSubmit(handleRangeAndRecurringSubmit)}>
+        <div
+          className="updateSingleForm"
+          style={{
+            display: singleDate ? "none" : "flex",
+
+            textAlign: "center",
+          }}
+        >
           <div
-            className="updateSingleForm"
+            className="updateTable"
             style={{
               display: singleDate ? "none" : "flex",
 
               textAlign: "center",
             }}
           >
-            <div
-              className="updateTable"
-              style={{
-                display: singleDate ? "none" : "flex",
+            <Controller
+              name="students"
+              control={control}
+              render={({ field }) => (
+                <Table
+                  {...field}
+                  style={{
+                    margin: "30px 0px",
+                  }}
+                  rowSelection={{
+                    type: selectionType,
+                    ...rowSelection,
+                  }}
+                  value={rowSelection}
+                  columns={columns}
+                  dataSource={data}
+                />
+              )}
+            />
+          </div>
+          <div
+            className="updateSingleFormProperties"
+            style={{
+              display: singleDate ? "none" : "flex",
+              flexDirection: "column",
+              textAlign: "center",
+            }}
+          >
+            <h3>Select a start and end date</h3>
+            <h3 style={{ color: "#ff0000" }}>{errors.datePicker?.message}</h3>
 
-                textAlign: "center",
-              }}
-            >
-              <Controller
-                name="students"
-                control={control}
-                render={({ field }) => (
-                  <Table
-                    {...field}
-                    style={{
-                      margin: "30px 0px",
-                    }}
-                    rowSelection={{
-                      type: selectionType,
-                      ...rowSelection,
-                    }}
-                    value={rowSelection}
-                    columns={columns}
-                    dataSource={data}
-                  />
-                )}
-              />
-            </div>
-            <div
-              className="updateSingleFormProperties"
-              style={{
-                display: singleDate ? "none" : "flex",
-                flexDirection: "column",
-                textAlign: "center",
-              }}
-            >
-              <h3>Select a start and end date</h3>
-              <h3 style={{ color: "#ff0000" }}>{errors.datePicker?.message}</h3>
-              <Controller
-                name="datePicker"
-                control={control}
-                render={({ field }) => (
-                  <RangePicker
-                    {...field}
-            
-                    size="large"
-                    format="dddd, MMMM D, YYYY"
-                    style={{ marginBottom: "3 0px", width: "500px" }}
-                    // {...register("timePicker", {
-                    //   required: "*Please select a time",
-                    // })}
-                  />
-                )}
-              />
-
-              <h3>Select a dismissal time</h3>
-              {/* <h3 style={{ color: "#ff0000" }}>
+            <Controller
+              name="rangePicker"
+              control={control}
+              render={({ field }) => (
+                <RangePicker
+                  {...field}
+                  format="dddd, MMMM D, YYYY"
+                  style={{
+                    marginBottom: "30px",
+                  }}
+                  // {...register("datePicker", {
+                  //   required: "*Please select a date",
+                  // })}
+                />
+              )}
+            />
+            <h3>Select a dismissal time</h3>
+            {/* <h3 style={{ color: "#ff0000" }}>
                 {errors?.timePicker?.message}
               </h3> */}
-              <Controller
-                name="timePicker"
-                control={control}
-                render={({ field }) => (
-                  <TimePicker
-                    {...field}
-                    showTime
-                    size="large"
-                    format="h:mm a"
-                    style={{ marginBottom: "30px" }}
-                    // {...register("timePicker", {
-                    //   required: "*Please select a time",
-                    // })}
-                  />
-                )}
-              />
-             
-
-              <h3>Input dismissal method</h3>
-              <h3 style={{ color: "#ff0000" }}>
-                {errors?.dismissal_method?.message}
-              </h3>
-              <Controller
-                name="dismissal_method"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="Example: Parent Pickup"
-                    maxLength={50}
-                    style={{ marginBottom: "30px" }}
-                    // {...register("dismissal_method", {
-                    //   required: "*Dismissal method is required",
-                    // })}
-                  />
-                )}
-              />
-
-              <h3>Input reason for dismissal</h3>
-              {/* <h3 style={{ color: "#ff0000" }}>{errors?.reason?.message}</h3> */}
-              <Controller
-                name="reason"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="Max 50 characters"
-                    maxLength={50}
-                    style={{ marginBottom: "30px" }}
-                    {...register("reason", {
-                      required: "*A reason is required",
-                    })}
-                  />
-                )}
-              />
-
-              <Input type="submit" value="Submit Form" />
-              <div
-                style={{
-                  display: recurringDates ? "flex" : "none",
-                  flexDirection: "column",
-                  textAlign: "center",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <h3 style={{ marginBottom: "30px" }}>
-                  Which days of the week should this occur on?
-                </h3>
-                <Checkbox.Group
-                  options={weekdays}
-                  onChange={handleCheckboxChange}
-                  style={{ marginBottom: "30px" }}
+            <Controller
+              name="timePicker"
+              control={control}
+              render={({ field }) => (
+                <TimePicker
+                  {...field}
+                  showTime
+                  size="large"
+                  format="h:mm a"
+                  style={{ marginBottom: "30px", width: "250px" }}
+                  // {...register("timePicker", {
+                  //   required: "*Please select a time",
+                  // })}
                 />
-                <h3 style={{ marginBottom: "30px" }}>
-                  How often should this occur?
-                </h3>
-                <Radio.Group
-                  onChange={handleRadioChange}
-                  defaultValue="weekly"
-                  size="small"
-                  style={{ marginBottom: "30px" }}
-                >
-                  <Radio value="weekly">Weekly</Radio>
-                  <Radio value="monthly">Monthly</Radio>
-                </Radio.Group>
-              </div>
+              )}
+            />
+
+            <h3>Enter a dismissal method</h3>
+            <h3 style={{ color: "#ff0000" }}>
+              {errors?.dismissal_method?.message}
+            </h3>
+            <Controller
+              name="dismissal_method"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Example: Parent Pickup"
+                  maxLength={50}
+                  style={{
+                    marginBottom: "30px",
+                    width: "250px",
+                    textAlign: "center",
+                  }}
+                  // {...register("dismissal_method", {
+                  //   required: "*Dismissal method is required",
+                  // })}
+                />
+              )}
+            />
+
+            <h3>Enter a dismissal reason</h3>
+            {/* <h3 style={{ color: "#ff0000" }}>{errors?.reason?.message}</h3> */}
+            <Controller
+              name="reason"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Max 50 characters"
+                  maxLength={50}
+                  style={{
+                    marginBottom: "30px",
+                    width: "250px",
+                    textAlign: "center",
+                  }}
+                  // {...register("reason", {
+                  //   required: "*A reason is required",
+                  // })}
+                />
+              )}
+            />
+            <div
+              style={{
+                display: recurringDates ? "flex" : "none",
+                flexDirection: "column",
+                textAlign: "center",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <h3 style={{ marginBottom: "30px" }}>
+                Which days of the week should this occur on?
+              </h3>
+
+              <Controller
+                name="checkbox"
+                control={control}
+                defaultValue={weekdays}
+                render={({ field }) => (
+                  <Checkbox.Group
+                    {...field}
+                    options={weekdays}
+                    style={{
+                      marginBottom: "30px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+
+                    // {...register("reason", {
+                    //   required: "*A reason is required",
+                    // })}
+                  />
+                )}
+              />
             </div>
+            <Input
+              type="submit"
+              value="Submit Form"
+              style={{
+                border: "2px solid black",
+                width: "150px",
+              }}
+            />
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };

@@ -1,22 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../requestMethods";
+import { Button, Select } from "antd";
+const { Option } = Select;
 
 const Login = () => {
-  const [user_id, setUser_id] = useState(1);
-  const [isAdmin, setIsAdmin] = useState(1);
+  const [user_id, setUser_id] = useState(null);
+  const [error, setError] = useState(null);
+
   const navigate = useNavigate();
+
   const getStudents = async () => {
-    try {
-      const response = await axiosInstance.post("/user/students", {
-        user_id,
-      });
-      let isAdmin = response.data.isAdmin[0].is_admin;
-      let students = response.data.students;
-      isAdmin ? navigate("/admin") : navigate("/update", { state: { students } });
-    } catch (error) {
-      console.log(error);
+    if (user_id === null) {
+      setError("Please select a user");
+    } else {
+      try {
+        const response = await axiosInstance.post("/user/students", {
+          user_id,
+        });
+        let isAdmin = response.data.isAdmin[0]?.is_admin;
+        let students = response.data.students;
+
+        isAdmin
+          ? navigate("/admin")
+          : navigate("/update", { state: { students } });
+      } catch (error) {
+        console.log(error);
+      }
     }
+  };
+  const handleChange = (value) => {
+    setUser_id(value.value);
   };
 
   return (
@@ -26,26 +40,39 @@ const Login = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        textAlign: 'center',
+        textAlign: "center",
         height: "100vh",
-        backgroundImage: "linear-gradient(to right,#bab5f8, #190abe)",
+        backgroundColor: "lightpink",
       }}
     >
-      <h1 style={{ marginBottom: "50px" }}>
-        Login Page For Demo Purpose Only:
-      </h1>
-
-      <select
-        onChange={(e) => setUser_id(e.target.value)}
-        style={{ marginBottom: "50px" }}
+      <h1 style={{ marginBottom: "50px" }}>Demo Login</h1>
+      <Select
+        defaultValue="Select User"
+        labelInValue
+        style={{
+          width: 120,
+          marginBottom: "30px",
+        }}
+        onChange={handleChange}
       >
-        <option value="1">Smith Family</option>
-        <option value="2">Williams Family</option>
-        <option value="3">Davis Family</option>
-        <option value="4">Admin</option>
-      </select>
-
-      <button onClick={getStudents}>Login</button>
+        <Option value="1">Smith Family</Option>
+        <Option value="2">Williams Family</Option>
+        <Option value="3">Davis Family</Option>
+        <Option value="4">Admin</Option>
+      </Select>
+      {
+        <h3
+          style={{
+            color: "red",
+            marginBottom: "20px",
+          }}
+        >
+          {error}
+        </h3>
+      }
+      <Button onClick={getStudents} size="large">
+        Login
+      </Button>
     </div>
   );
 };

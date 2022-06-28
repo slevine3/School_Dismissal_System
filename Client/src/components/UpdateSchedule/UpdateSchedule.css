@@ -1,18 +1,8 @@
 .updateContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
   background-color: lightcoral;
+  height: 100vh;
 }
-.updateContainerList {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
-  width: 100vw;
-}
+
 .updateTitle {
   text-align: center;
   margin-bottom: 50px;
@@ -21,8 +11,7 @@
 .updateSingleForm {
   display: flex;
   justify-content: space-evenly;
-  align-items: center;
-  width: 100vw;
+  /* align-items: center; */
   background-color: lightcoral;
   padding-bottom: 50px;
 }
@@ -32,11 +21,15 @@
   box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
   padding: 0 50px;
   background-color: white;
+  height: 400px;
 }
 .updateSingleFormProperties {
   -webkit-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
   box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
-  width: 600px;
+  width: 500px;
   padding: 50px 50px;
   background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
