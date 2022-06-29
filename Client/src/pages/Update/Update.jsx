@@ -3,12 +3,7 @@ import React from "react";
 import UpdateSchedule from "../../components/UpdateSchedule/UpdateSchedule";
 
 const Update = () => {
-  return (
-    <div className="updateContainer">
-      <UpdateSchedule />
-
-    </div>
-  );
+  return <UpdateSchedule />;
 };
 
 export default Update;

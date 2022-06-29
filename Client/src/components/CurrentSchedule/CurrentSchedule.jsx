@@ -1,17 +1,23 @@
 import React, { useEffect } from "react";
 import "./CurrentSchedule.css";
 import dayjs from "dayjs";
-import { Divider, Table, Button, Calendar, Typography } from "antd";
+import { Divider, Table, Button, Calendar, Typography, Input } from "antd";
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../requestMethods";
-import axios from "axios";
 
 const CurrentSchedule = () => {
   const navigate = useNavigate();
   //USE LOCATION HOOK RETRIEVES STUDENT DATA FROM LOGIN PAGE
   const location = useLocation();
+  //REACT HOOK FORM
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm();
 
   const user_id = location.state.students[0].parental_id;
   const [selectionType, setSelectionType] = useState("checkbox");
@@ -21,9 +27,9 @@ const CurrentSchedule = () => {
 
   const getSchedule = async (value) => {
     let calendarDate = dayjs(value).format("YYYY-MM-DD");
-    console.log(calendarDate);
+
     try {
-      const response = await axios.get("http://localhost:5000/api/users/read", {
+      const response = await axiosInstance.get("/users/read", {
         params: { user_id, calendarDate },
       });
       setStudents(response.data.students);
@@ -32,6 +38,7 @@ const CurrentSchedule = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
     getSchedule();
   }, []);
@@ -68,12 +75,6 @@ const CurrentSchedule = () => {
     }
   }
 
-  while (data?.length < 3) {
-    let key = { key: counter, name: "Disabled User" };
-    data.push(key);
-    counter--;
-  }
-
   const [selectedStudents, setSelectedStudents] = useState(null);
   //INCLUDED FROM ANTD - USED FOR SELECTING STUDENTS
   const rowSelection = {
@@ -89,35 +90,61 @@ const CurrentSchedule = () => {
   const onPanelChange = (value) => {
     getSchedule(value);
   };
-  //REACT HOOK FORM
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm();
 
-  const handleFormSubmit = (data) => {
-    console.log(data);
+  const handleDelete = async (value) => {
+    console.log("VALUE: ", value);
+    // try {
+    //   const response = await axios.delete(
+    //     "http://localhost:5000/api/users/delete",
+    //   );
+    //   setStudents(response.data.students);
+    //   console.log(response.data);
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
-  const handleCalendarClick = (value) => {
-    console.log(value);
-  };
-  const handleDelete = () => {};
   const handleClick = () => {
     navigate("/update", { state: { students } });
   };
   return (
     <div className="currentScheduleContainer">
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
+      <form onSubmit={handleSubmit(handleDelete)}>
         <div className="currentScheduleForm">
+          <div className="currentScheduleCalendar">
+            <Typography.Title
+              level={5}
+              style={{ textAlign: "center", marginTop: "5px" }}
+            >
+              Select a date to view daily schedule
+            </Typography.Title>
+            <Calendar fullscreen={false} onChange={onPanelChange} />
+
+            {/* <Controller
+              name="calendar"
+              control={control}
+              render={({ onChange, render, ref }) => (
+                <Calendar
+                  onChange={onPanelChange}
+                  format="dddd, MMMM D, YYYY"
+                  fullscreen={false}
+                  style={{
+                    marginBottom: "30px",
+                  }}
+                  inputRef={ref}
+                />
+              )}
+            /> */}
+          </div>
+
           <div className="currentScheduleTable">
+            <h1 className="currentTableTitle">Daily Dismissal Schedule</h1>
             <Controller
               name="students"
               control={control}
-              render={({ field }) => (
+              render={({ onChange, value }) => (
                 <Table
-                  {...field}
+                  value={value}
+                  onChange={onChange}
                   style={{
                     margin: "30px 0px",
                   }}
@@ -126,47 +153,41 @@ const CurrentSchedule = () => {
                     ...rowSelection,
                   }}
                   pagination={{ pageSize: 3 }}
-                  value={rowSelection}
+                  // value={rowSelection}
                   columns={columns}
                   dataSource={data}
                 />
               )}
             />
-          </div>
-          <div className="currentScheduleCalendar">
-            <Typography.Title level={5} style={{ textAlign: "center" }}>
-              Select a date to view the daily schedule
-            </Typography.Title>
-            <Calendar fullscreen={false} onChange={onPanelChange} />
 
-            {/* <Controller
-              name="calendar"
-              control={control}
-              onChange={(e) => console.log(e)}
-              render={({ field }) => (
-                <Calendar
-                  format="dddd, MMMM D, YYYY"
-                  fullscreen={false}
-                  style={{
-                    marginBottom: "30px",
-                  }}
-                />
-              )}
-            /> */}
+            <h4 style={{ color: "red" }}>{errors.students?.message}</h4>
           </div>
         </div>
+        <div className="currentScheduleButton">
+          <div></div>
+          <div></div>
+          <div></div>
+          <Input
+            type="submit"
+            className="currentScheduleDeleteButton"
+            title="You must first select a student"
+            value="Delete This Schedule"
+            style={{
+              border: "1px solid black",
+              width: "200px",
+              cursor: "pointer",
+              marginRight: "10px",
+            }}
+          />
+
+          <Button
+            style={{ border: "1px solid black", width: "200px" }}
+            onClick={handleClick}
+          >
+            Create New Dismissal
+          </Button>
+        </div>
       </form>
-      <div className="currentScheduleButton">
-        <Button
-          style={{ marginBottom: "20px", border: "1px solid black" }}
-          onClick={handleDelete}
-        >
-          Delete This Schedule
-        </Button>
-        <Button style={{ border: "1px solid black" }} onClick={handleClick}>
-          Create New Dismissal
-        </Button>
-      </div>
     </div>
   );
 };

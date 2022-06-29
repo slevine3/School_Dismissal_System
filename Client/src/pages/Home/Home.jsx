@@ -7,8 +7,6 @@ import { Button } from "antd";
 const Home = () => {
   return (
     <div className="homeContainer">
-      <h1 className="homeTitle">Daily Dismissal Schedule</h1>
-
       <CurrentSchedule />
     </div>
   );

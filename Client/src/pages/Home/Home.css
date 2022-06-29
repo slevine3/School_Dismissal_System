@@ -1,15 +1,4 @@
 .homeContainer {
+  background-color: #36454f;
+  height: 100vh;
 }
-
-.homeTitle {
-  text-align: center;
-  padding-top: 50px;
-  padding-bottom: 30px;
-}
-.homeComponentContainer {
-  /* display: flex;
-  flex-direction: column;
-  margin: 0 50px; */
-}
-
-

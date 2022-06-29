@@ -35,13 +35,8 @@ const UpdateSchedule = () => {
       data[student]["key"] = data[student].student_id;
     }
   }
-  while (data?.length < 8) {
-    let disabledUsers = { key: counter, name: "Disabled User" };
-    data.push(disabledUsers);
-    counter--;
-  }
+ 
 
-  console.log(data);
   const [selectionType, setSelectionType] = useState("checkbox");
   //INCLUDED FROM ANTD - USED FOR SELECTING STUDENTS
   const rowSelection = {
@@ -109,8 +104,9 @@ const UpdateSchedule = () => {
 
   return (
     <div className="updateContainer">
-      <h1 className="updateTitle">New Dismissal</h1>
-
+      <div>
+        <h1 className="updateTitle">New Dismissal</h1>
+      </div>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <div className="updateForm">
           <div className="updateStudentsSection">
@@ -257,6 +253,8 @@ const UpdateSchedule = () => {
               style={{
                 border: "2px solid black",
                 width: "150px",
+                backgroundColor: "#4B5F6D",
+                color: "white",
               }}
             />
           </div>

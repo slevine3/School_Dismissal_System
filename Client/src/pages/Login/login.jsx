@@ -40,43 +40,45 @@ const Login = () => {
         justifyContent: "center",
         textAlign: "center",
         height: "100vh",
-        backgroundColor: "lightpink",
+        backgroundColor: "#36454f",
       }}
     >
-      <h1 style={{ marginBottom: "50px" }}>Demo Login</h1>
-      <Select
-        defaultValue="Select User"
-        labelInValue
-        style={{
-          width: 175,
-          marginBottom: "30px",
-        }}
-        onChange={handleChange}
-      >
-        <Option value="1">Smith Family</Option>
-        <Option value="2">Williams Family</Option>
-        <Option value="3">Davis Family</Option>
-        <Option value="4">Admin</Option>
-      </Select>
-      {
-        <h3
+      <div style={{ border: "1px solid white", padding: '80px' }}>
+        <h1 style={{ marginBottom: "50px", color: "white" }}>Demo Login</h1>
+        <Select
+          defaultValue="Select User"
+          labelInValue
           style={{
-            color: "red",
-            marginBottom: "20px",
+            width: 160,
+            marginBottom: "30px",
+          }}
+          onChange={handleChange}
+        >
+          <Option value="1">Smith Family</Option>
+          <Option value="2">Williams Family</Option>
+          <Option value="3">Davis Family</Option>
+          <Option value="4">Admin</Option>
+        </Select>
+        {
+          <h3
+            style={{
+              color: "red",
+              marginBottom: "20px",
+            }}
+          >
+            {error}
+          </h3>
+        }
+        <Button
+          onClick={getStudents}
+          style={{
+            width: 160,
+            border: "1px solid black",
           }}
         >
-          {error}
-        </h3>
-      }
-      <Button
-        onClick={getStudents}
-        style={{
-          width: 175,
-          border: "1px solid black",
-        }}
-      >
-        Login
-      </Button>
+          Login
+        </Button>
+      </div>
     </div>
   );
 };

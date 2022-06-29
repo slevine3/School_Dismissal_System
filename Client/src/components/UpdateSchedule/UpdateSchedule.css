@@ -3,21 +3,26 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background-color: lightcoral;
+  background-color: #36454f;
   height: 100vh;
-  width: 100vw;
-  /* border: 3px solid black; */
 }
 
 .updateTitle {
+  color: white;
+  margin-bottom: 30px;
 }
 .updateForm {
   display: flex;
   justify-content: space-between;
   min-width: 841.22px;
   min-height: 720.26px;
-  -webkit-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
-  box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  -webkit-box-shadow: 5px 5px 15px 5px #000000;
+  box-shadow: 5px 5px 15px 5px #000000;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
   padding: 30px 30px;
   background-color: white;
 }
@@ -34,3 +39,7 @@
   min-width: 466.31px;
   min-height: 624.26px;
 }
+/* .currentScheduleButton:hover {
+  border: 1px solid #888;
+  background-color: #ddd;
+} */
