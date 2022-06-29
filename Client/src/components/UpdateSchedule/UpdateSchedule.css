@@ -1,35 +1,36 @@
 .updateContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   background-color: lightcoral;
   height: 100vh;
+  width: 100vw;
+  /* border: 3px solid black; */
 }
 
 .updateTitle {
-  text-align: center;
-  margin-bottom: 50px;
-  padding-top: 50px;
 }
-.updateSingleForm {
+.updateForm {
   display: flex;
-  justify-content: space-evenly;
-  /* align-items: center; */
-  background-color: lightcoral;
-  padding-bottom: 50px;
+  justify-content: space-between;
+  min-width: 841.22px;
+  min-height: 720.26px;
+  -webkit-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
+  padding: 30px 30px;
+  background-color: white;
 }
 
-.updateTable {
-  -webkit-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
-  box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
-  padding: 0 50px;
-  background-color: white;
-  height: 400px;
+.updateStudentsSection {
+  border-right: 1px solid lightgray;
+  padding-right: 50px;
 }
-.updateSingleFormProperties {
-  -webkit-box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
-  box-shadow: 5px 5px 15px 5px rgba(0, 0, 0, 0.3);
-  width: 500px;
-  padding: 50px 50px;
-  background-color: white;
+.updateValuesSection {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  text-align: center;
+  min-width: 466.31px;
+  min-height: 624.26px;
 }

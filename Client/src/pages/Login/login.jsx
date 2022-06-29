@@ -15,15 +15,13 @@ const Login = () => {
       setError("Please select a user");
     } else {
       try {
-        const response = await axiosInstance.post("/user/students", {
-          user_id,
+        const response = await axiosInstance.get("/users/students", {
+          params: { user_id },
         });
         let isAdmin = response.data.isAdmin[0]?.is_admin;
         let students = response.data.students;
 
-        isAdmin
-          ? navigate("/admin")
-          : navigate("/update", { state: { students } });
+        isAdmin ? navigate("/admin") : navigate("/", { state: { students } });
       } catch (error) {
         console.log(error);
       }
@@ -50,7 +48,7 @@ const Login = () => {
         defaultValue="Select User"
         labelInValue
         style={{
-          width: 120,
+          width: 175,
           marginBottom: "30px",
         }}
         onChange={handleChange}
@@ -70,7 +68,13 @@ const Login = () => {
           {error}
         </h3>
       }
-      <Button onClick={getStudents} size="large">
+      <Button
+        onClick={getStudents}
+        style={{
+          width: 175,
+          border: "1px solid black",
+        }}
+      >
         Login
       </Button>
     </div>
