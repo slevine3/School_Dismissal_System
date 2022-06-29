@@ -11,10 +11,10 @@ app.use(express.json());
 const db = require("./config");
 
 const adminRouter = require("./routes/admin");
-const userRouter = require("./routes/user");
+const usersRouter = require("./routes/users");
 
 app.use("/api/admin", adminRouter);
-app.use("/api/user", userRouter);
+app.use("/api/users", usersRouter);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log("Server is running on port 5000");
