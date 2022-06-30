@@ -22,20 +22,29 @@ const CurrentSchedule = () => {
   const user_id = location.state.students[0].parental_id;
   const [selectionType, setSelectionType] = useState("checkbox");
   const [students, setStudents] = useState(location.state?.students);
+  const [error, setError] = useState(false);
 
   const todayDate = dayjs().format("YYYY-MM-DD");
 
+  //STUDENT TABLE IF NO SCHOOL -- SEE getSchedule() FOR const dayOfTheWeek
+  let locale = {
+    emptyText: "No School Today",
+  };
   const getSchedule = async (value) => {
     let calendarDate = dayjs(value).format("YYYY-MM-DD");
+    const dayOfTheWeek = dayjs(calendarDate).format("dddd");
 
-    try {
-      const response = await axiosInstance.get("/users/read", {
-        params: { user_id, calendarDate },
-      });
-      setStudents(response.data.students);
-      console.log(response.data);
-    } catch (error) {
-      console.log(error);
+    if (dayOfTheWeek === "Saturday" || dayOfTheWeek === "Sunday") {
+      setStudents(null);
+    } else {
+      try {
+        const response = await axiosInstance.get("/users/read", {
+          params: { user_id, calendarDate },
+        });
+        setStudents(response.data.students);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -66,20 +75,25 @@ const CurrentSchedule = () => {
     },
   ];
   let data = students && students.map((student) => student);
-  let counter = Number.MAX_SAFE_INTEGER;
 
-  //ADD KEY TO DATA ACCORDING TO STUDENT_ID
+  //ADD KEY TO DATA
+  let key = 0;
   for (let student in data) {
     if (!(Object.keys === "key")) {
-      data[student]["key"] = data[student].student_id;
+      data[student]["key"] = key;
     }
+    key++;
   }
 
+  const [calendar, setCalendar] = useState(todayDate);
   const [selectedStudents, setSelectedStudents] = useState(null);
   //INCLUDED FROM ANTD - USED FOR SELECTING STUDENTS
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedStudents(selectedRows);
+      if (selectedRowKeys.length > 0) {
+        setError(false);
+      }
     },
     getCheckboxProps: (record) => ({
       disabled: record.name === "Disabled User",
@@ -88,24 +102,40 @@ const CurrentSchedule = () => {
     }),
   };
   const onPanelChange = (value) => {
+    const calendarDate = dayjs(value).format("YYYY-MM-DD");
     getSchedule(value);
+    setCalendar(calendarDate);
   };
 
   const handleDelete = async (value) => {
-    console.log("VALUE: ", value);
-    // try {
-    //   const response = await axios.delete(
-    //     "http://localhost:5000/api/users/delete",
-    //   );
-    //   setStudents(response.data.students);
-    //   console.log(response.data);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    if (!selectedStudents || selectedStudents.length === 0) {
+      setError("Please select a student schedule");
+    } else {
+      try {
+        const response = await axiosInstance.delete("/users/delete", {
+          data: {
+            selectedStudents,
+            calendar,
+          },
+        });
+        setStudents(response.data.students);
+
+        if (response.status === 200) {
+          window.location.reload();
+        }
+      } catch (error) {
+        console.log(error);
+        if (401) {
+          setError(error.response.data.error);
+        }
+      }
+    }
   };
+
   const handleClick = () => {
     navigate("/update", { state: { students } });
   };
+
   return (
     <div className="currentScheduleContainer">
       <form onSubmit={handleSubmit(handleDelete)}>
@@ -117,9 +147,8 @@ const CurrentSchedule = () => {
             >
               Select a date to view daily schedule
             </Typography.Title>
-            <Calendar fullscreen={false} onChange={onPanelChange} />
 
-            {/* <Controller
+            <Controller
               name="calendar"
               control={control}
               render={({ onChange, render, ref }) => (
@@ -133,7 +162,7 @@ const CurrentSchedule = () => {
                   inputRef={ref}
                 />
               )}
-            /> */}
+            />
           </div>
 
           <div className="currentScheduleTable">
@@ -143,8 +172,7 @@ const CurrentSchedule = () => {
               control={control}
               render={({ onChange, value }) => (
                 <Table
-                  value={value}
-                  onChange={onChange}
+                  locale={locale}
                   style={{
                     margin: "30px 0px",
                   }}
@@ -153,14 +181,12 @@ const CurrentSchedule = () => {
                     ...rowSelection,
                   }}
                   pagination={{ pageSize: 3 }}
-                  // value={rowSelection}
+                  value={rowSelection}
                   columns={columns}
                   dataSource={data}
                 />
               )}
             />
-
-            <h4 style={{ color: "red" }}>{errors.students?.message}</h4>
           </div>
         </div>
         <div className="currentScheduleButton">
@@ -170,7 +196,6 @@ const CurrentSchedule = () => {
           <Input
             type="submit"
             className="currentScheduleDeleteButton"
-            title="You must first select a student"
             value="Delete This Schedule"
             style={{
               border: "1px solid black",
@@ -181,11 +206,28 @@ const CurrentSchedule = () => {
           />
 
           <Button
-            style={{ border: "1px solid black", width: "200px" }}
+            style={{
+              border: "1px solid black",
+              width: "200px",
+              color: "black",
+            }}
             onClick={handleClick}
           >
             Create New Dismissal
           </Button>
+        </div>
+        <div className="currentScheduleError">
+          <h3
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "300px",
+              color: "red",
+            }}
+          >
+            {error}
+          </h3>
         </div>
       </form>
     </div>

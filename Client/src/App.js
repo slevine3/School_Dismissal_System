@@ -5,16 +5,14 @@ import Admin from "./pages/Admin/Admin";
 import Login from "./pages/Login/login";
 
 function App() {
-  
   return (
     <div>
       <BrowserRouter>
         <Routes>
-          <Route exact path="/" element={<Home />} />
-          <Route exact path="/login" element={<Login />} />
+          <Route exact path="/" element={<Login />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/update" element={<Update />} />
           <Route path="/admin" element={<Admin />} />
-        
         </Routes>
       </BrowserRouter>
     </div>

@@ -21,7 +21,7 @@ const Login = () => {
         let isAdmin = response.data.isAdmin[0]?.is_admin;
         let students = response.data.students;
 
-        isAdmin ? navigate("/admin") : navigate("/", { state: { students } });
+        isAdmin ? navigate("/admin") : navigate("/home", { state: { students } });
       } catch (error) {
         console.log(error);
       }

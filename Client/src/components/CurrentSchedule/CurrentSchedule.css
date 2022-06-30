@@ -5,7 +5,6 @@
   justify-content: center;
   height: 100vh;
   width: 100vw;
-  
 }
 
 .currentScheduleForm {
@@ -56,4 +55,10 @@
 }
 .ant-radio-button-wrapper:last-child {
   display: none;
+}
+.currentScheduleError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 }

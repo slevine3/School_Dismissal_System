@@ -13,6 +13,7 @@ const UpdateSchedule = () => {
   //USE LOCATION HOOK RETRIEVES STUDENT DATA FROM LOGIN PAGE
   const location = useLocation();
   const students = location.state?.students;
+  const [error, setError] = useState();
 
   //COLUMNS AND DATA FOR STUDENT TABLE
   const columns = [
@@ -27,7 +28,6 @@ const UpdateSchedule = () => {
   ];
 
   let data = students && students.map((student) => student);
-  let counter = Number.MAX_SAFE_INTEGER;
 
   //ADD KEY TO DATA ACCORDING TO STUDENT_ID
   for (let student in data) {
@@ -35,7 +35,6 @@ const UpdateSchedule = () => {
       data[student]["key"] = data[student].student_id;
     }
   }
- 
 
   const [selectionType, setSelectionType] = useState("checkbox");
   //INCLUDED FROM ANTD - USED FOR SELECTING STUDENTS
@@ -56,49 +55,52 @@ const UpdateSchedule = () => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm();
+  } = useForm({ defaultValues: { rangePicker: "" } });
 
   //VARIABLES FROM FORMS
 
   const [selectedStudents, setSelectedStudents] = useState(null);
   const [switchButton, setSwitchButton] = useState(false);
-
+  console.log(selectedStudents);
   //VALUES FOR RECURRING DATES
   const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
   const handleFormSubmit = async (data, e) => {
-    const dismissal_date_start = data.rangePicker[0];
-    const dismissal_date_end = data.rangePicker[1];
-    const dismissal_time = data.timePicker;
-    const reason = data?.reason;
-    const dismissal_method = data.dismissal_method;
-    const checkbox = data?.checkbox;
-    const switchButton = data?.switchButton;
+    console.log("DATA: ", data);
+    if (!selectedStudents || selectedStudents.length === 0) {
+      setError("Please select a student");
+    } else {
+      const dismissal_date_start = data.rangePicker[0];
+      const dismissal_date_end = data.rangePicker[1];
+      const dismissal_time = data.timePicker;
+      const reason = data?.reason;
+      const dismissal_method = data.dismissal_method;
+      const checkbox = data?.checkbox;
 
-    let date_start = Object.values(dismissal_date_start)[4];
-    let formattedDate_start = dayjs(date_start).format("M-D-YYYY");
+      let date_start = Object.values(dismissal_date_start)[4];
+      let formattedDate_start = dayjs(date_start).format("M-D-YYYY");
 
-    let date_end = Object.values(dismissal_date_end)[4];
-    let formattedDate_end = dayjs(date_end).format("M-D-YYYY");
+      let date_end = Object.values(dismissal_date_end)[4];
+      let formattedDate_end = dayjs(date_end).format("M-D-YYYY");
 
-    let time = Object.values(dismissal_time)[4];
-    let formattedTime = dayjs(time).format("HH:mm:ss");
+      let time = Object.values(dismissal_time)[4];
+      let formattedTime = dayjs(time).format("HH:mm:ss");
 
-    try {
-      const response = await axiosInstance.post("/users/create", {
-        selectedStudents, //****NOT PASSED WITH REACT HOOK FORM -- PASSED THROUGH USE STATE****
-        formattedDate_start,
-        formattedDate_end,
-        formattedTime,
-        dismissal_method,
-        reason, //****NOT PASSED WITH REACT HOOK FORM -- PASSED THROUGH USE STATE****
-        switchButton,
-        checkbox,
-      });
+      try {
+        const response = await axiosInstance.post("/users/create", {
+          selectedStudents, //****NOT PASSED WITH REACT HOOK FORM -- PASSED THROUGH USE STATE****
+          formattedDate_start,
+          formattedDate_end,
+          formattedTime,
+          dismissal_method,
+          reason, //****NOT PASSED WITH REACT HOOK FORM -- PASSED THROUGH USE STATE****
+          checkbox,
+        });
 
-      navigate("/");
-    } catch (error) {
-      console.log(error);
+        navigate("/home", { state: { students } });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -110,32 +112,40 @@ const UpdateSchedule = () => {
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <div className="updateForm">
           <div className="updateStudentsSection">
-            <Controller
-              name="students"
-              control={control}
-              render={({ field }) => (
-                <Table
-                  {...field}
-                  style={{
-                    margin: "30px 0px",
-                  }}
-                  rowSelection={{
-                    type: selectionType,
-                    ...rowSelection,
-                  }}
-                  pagination={{ pageSize: 8 }}
-                  value={rowSelection}
-                  columns={columns}
-                  dataSource={data}
-                />
-              )}
+            <Table
+              style={{
+                margin: "30px 0px",
+              }}
+              rowSelection={{
+                type: selectionType,
+                ...rowSelection,
+              }}
+              dataSource={data}
+              columns={columns}
+              pagination={{ pageSize: 8 }}
             />
+            <div className="currentScheduleError">
+              <h3
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "300px",
+                  color: "red",
+                }}
+              >
+                {error}
+              </h3>
+            </div>
           </div>
 
           <div className="updateValuesSection">
             <h3>Select a start and end date</h3>
             <Controller
               name="rangePicker"
+              {...register("rangePicker", {
+                required: "Date range is required",
+              })}
               control={control}
               render={({ field }) => (
                 <RangePicker
@@ -147,11 +157,17 @@ const UpdateSchedule = () => {
                 />
               )}
             />
+
+            {<h3 style={{ color: "red" }}> {errors.rangePicker?.message}</h3>}
+
             <h3>Select a dismissal time</h3>
 
             <Controller
               name="timePicker"
               control={control}
+              {...register("timePicker", {
+                required: "Dismissal time is required",
+              })}
               render={({ field }) => (
                 <TimePicker
                   {...field}
@@ -162,14 +178,16 @@ const UpdateSchedule = () => {
                 />
               )}
             />
+            {<h3 style={{ color: "red" }}> {errors.timePicker?.message}</h3>}
 
             <h3>Enter a dismissal method</h3>
-            <h3 style={{ color: "#ff0000" }}>
-              {errors?.dismissal_method?.message}
-            </h3>
+
             <Controller
               name="dismissal_method"
               control={control}
+              {...register("dismissal_method", {
+                required: "Dismissal method is required",
+              })}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -183,12 +201,18 @@ const UpdateSchedule = () => {
                 />
               )}
             />
-
+            {
+              <h3 style={{ color: "red" }}>
+                {errors.dismissal_method?.message}
+              </h3>
+            }
             <h3>Enter a dismissal reason</h3>
-
             <Controller
               name="reason"
               control={control}
+              {...register("reason", {
+                required: "A reason is required",
+              })}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -202,19 +226,12 @@ const UpdateSchedule = () => {
                 />
               )}
             />
+            {<h3 style={{ color: "red" }}> {errors.reason?.message}</h3>}
             <h3>Will this occur more than once?</h3>
             <div>
-              <Controller
-                name="switchButton"
-                control={control}
-                render={({ field }) => (
-                  <Switch
-                    {...field}
-                    onClick={(value) => setSwitchButton(value)}
-                    // onChange={onChange}
-                    style={{ marginBottom: "30px" }}
-                  />
-                )}
+              <Switch
+                onClick={(value) => setSwitchButton(value)}
+                style={{ marginBottom: "30px" }}
               />
             </div>
             <div
@@ -230,8 +247,8 @@ const UpdateSchedule = () => {
               <Controller
                 name="checkbox"
                 control={control}
-                defaultValue={weekdays}
-                render={({ field }) => (
+                defaultValue={switchButton ? weekdays : weekdays}
+                render={({ field, value }) => (
                   <Checkbox.Group
                     {...field}
                     options={weekdays}
@@ -246,6 +263,7 @@ const UpdateSchedule = () => {
                 )}
               />
             </div>
+
             <Input
               type="submit"
               value="Submit Form"
@@ -255,6 +273,7 @@ const UpdateSchedule = () => {
                 width: "150px",
                 backgroundColor: "#4B5F6D",
                 color: "white",
+                cursor: "pointer",
               }}
             />
           </div>
