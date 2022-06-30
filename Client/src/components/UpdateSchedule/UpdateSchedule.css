@@ -39,7 +39,9 @@
   min-width: 466.31px;
   min-height: 624.26px;
 }
-/* .currentScheduleButton:hover {
-  border: 1px solid #888;
-  background-color: #ddd;
-} */
+.updateCheckboxContainer {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+

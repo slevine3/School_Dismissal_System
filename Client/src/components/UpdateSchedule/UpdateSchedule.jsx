@@ -13,7 +13,8 @@ const UpdateSchedule = () => {
   //USE LOCATION HOOK RETRIEVES STUDENT DATA FROM LOGIN PAGE
   const location = useLocation();
   const students = location.state?.students;
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
+  const [dateError, setDateError] = useState(null);
 
   //COLUMNS AND DATA FOR STUDENT TABLE
   const columns = [
@@ -61,24 +62,33 @@ const UpdateSchedule = () => {
 
   const [selectedStudents, setSelectedStudents] = useState(null);
   const [switchButton, setSwitchButton] = useState(false);
-  console.log(selectedStudents);
+
   //VALUES FOR RECURRING DATES
   const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
   const handleFormSubmit = async (data, e) => {
-    console.log("DATA: ", data);
-    if (!selectedStudents || selectedStudents.length === 0) {
+    const beginningOfDay = dayjs().hour(0).minute(0).format();
+    const dailyCutOffTime = dayjs().hour(12).minute(59).format();
+    const endOfDay = dayjs().hour(23).minute(59).format();
+    const dismissal_date_start = data.rangePicker[0];
+    const date_start = Object.values(dismissal_date_start)[4];
+    const formattedDate_start = dayjs(date_start).format();
+
+    if (formattedDate_start < beginningOfDay) {
+      setDateError("Please select a future date");
+    } else if (!selectedStudents || selectedStudents.length === 0) {
       setError("Please select a student");
+    } else if (
+      formattedDate_start > dailyCutOffTime &&
+      formattedDate_start < endOfDay
+    ) {
+      setDateError("Please select a future date. Daily cut off time is 1:00pm");
     } else {
-      const dismissal_date_start = data.rangePicker[0];
       const dismissal_date_end = data.rangePicker[1];
       const dismissal_time = data.timePicker;
       const reason = data?.reason;
       const dismissal_method = data.dismissal_method;
       const checkbox = data?.checkbox;
-
-      let date_start = Object.values(dismissal_date_start)[4];
-      let formattedDate_start = dayjs(date_start).format("M-D-YYYY");
 
       let date_end = Object.values(dismissal_date_end)[4];
       let formattedDate_end = dayjs(date_end).format("M-D-YYYY");
@@ -141,11 +151,14 @@ const UpdateSchedule = () => {
 
           <div className="updateValuesSection">
             <h3>Select a start and end date</h3>
+            {<h3 style={{ color: "red" }}> {errors.rangePicker?.message}</h3>}
+            {<h3 style={{ color: "red" }}> {dateError}</h3>}
             <Controller
               name="rangePicker"
               {...register("rangePicker", {
                 required: "Date range is required",
               })}
+              ref={null}
               control={control}
               render={({ field }) => (
                 <RangePicker
@@ -158,16 +171,15 @@ const UpdateSchedule = () => {
               )}
             />
 
-            {<h3 style={{ color: "red" }}> {errors.rangePicker?.message}</h3>}
-
             <h3>Select a dismissal time</h3>
-
+            {<h3 style={{ color: "red" }}> {errors.timePicker?.message}</h3>}
             <Controller
               name="timePicker"
               control={control}
               {...register("timePicker", {
                 required: "Dismissal time is required",
               })}
+              ref={null}
               render={({ field }) => (
                 <TimePicker
                   {...field}
@@ -178,16 +190,20 @@ const UpdateSchedule = () => {
                 />
               )}
             />
-            {<h3 style={{ color: "red" }}> {errors.timePicker?.message}</h3>}
 
             <h3>Enter a dismissal method</h3>
-
+            {
+              <h3 style={{ color: "red" }}>
+                {errors.dismissal_method?.message}
+              </h3>
+            }
             <Controller
               name="dismissal_method"
               control={control}
               {...register("dismissal_method", {
                 required: "Dismissal method is required",
               })}
+              ref={null}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -201,18 +217,16 @@ const UpdateSchedule = () => {
                 />
               )}
             />
-            {
-              <h3 style={{ color: "red" }}>
-                {errors.dismissal_method?.message}
-              </h3>
-            }
+
             <h3>Enter a dismissal reason</h3>
+            {<h3 style={{ color: "red" }}> {errors.reason?.message}</h3>}
             <Controller
               name="reason"
               control={control}
               {...register("reason", {
                 required: "A reason is required",
               })}
+              ref={null}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -226,7 +240,7 @@ const UpdateSchedule = () => {
                 />
               )}
             />
-            {<h3 style={{ color: "red" }}> {errors.reason?.message}</h3>}
+
             <h3>Will this occur more than once?</h3>
             <div>
               <Switch
@@ -234,12 +248,7 @@ const UpdateSchedule = () => {
                 style={{ marginBottom: "30px" }}
               />
             </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
+            <div className="updateCheckboxContainer">
               <h3 style={{ marginBottom: "30px" }}>
                 Which days of the week should this occur on?
               </h3>
