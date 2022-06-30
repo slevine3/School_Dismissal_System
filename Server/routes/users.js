@@ -4,7 +4,7 @@ const dayjs = require("dayjs");
 
 const todayDate = dayjs().format("MM/DD/YYYY");
 
-//RETRIEVE DATA (STUDENTS)
+//RETRIEVE DATA (STUDENTS) - LOGIN PAGE
 
 router.get("/students", async (req, res) => {
   const user_id = req.query.user_id;
@@ -24,17 +24,15 @@ router.get("/students", async (req, res) => {
   }
 });
 
-//SUBMIT FORM DATA TO DATABASE
+//SUBMIT FORM DATA TO DATABASE - NEW DISMISSAL PAGE
 
 router.post("/create", async (req, res) => {
-  console.log("FORM DATA: ", req.body);
   const students = req.body.selectedStudents;
   const date_start = req.body.formattedDate_start;
   const date_end = req.body.formattedDate_end;
   const time = req.body.formattedTime;
   const dismissal_method = req.body.dismissal_method;
   const reason = req.body?.reason;
-  const switchButton = req.body.switchButton;
   const checkbox = req.body?.checkbox;
   //FOR LOOP ITERATES FOR MULTIPLE STUDENTS (ADDING ONE ENTRY TO DATABASE ON EACH LOOP)
 
@@ -55,13 +53,13 @@ router.post("/create", async (req, res) => {
           occurrence: checkbox,
         })
         .into("schedule");
+      res.status(200).json({ response: "Success!" });
     } catch (error) {
       console.log(error);
     }
   }
-  res.status(200).json({ response: "Success!" });
 });
-//RETRIEVE USER DATA FROM DATABASE
+//RETRIEVE USER DATA FROM DATABASE - HOME PAGE
 
 router.get("/read", async (req, res) => {
   const user_id = req.query.user_id;
@@ -78,7 +76,6 @@ router.get("/read", async (req, res) => {
       .where("date_end", ">=", calendarDate)
       .whereILike("occurrence", `%${dayOfTheWeek}%`)
       .orderBy("dismissal_timestamp", "asc");
-
 
     let standardStudents = await db("users")
       .select("*")
@@ -102,6 +99,41 @@ router.get("/read", async (req, res) => {
     res.status(200).json({ students });
   } catch (error) {
     console.log(error);
+  }
+});
+
+//DELETE STUDENT SCHEDULE - HOME PAGE
+
+router.delete("/delete", async (req, res) => {
+  const students = req.body.selectedStudents;
+  const calendarDate = req.body.calendar;
+  const dayOfTheWeek = dayjs(calendarDate).format("dddd");
+  try {
+    //CHECK IF ANY OF THE STUDENTS BEING DELETED IS A STANDARD DISMISSAL
+    let oneOrMoreStudentsContainStandardDismissal = students.some(
+      (student) => student.reason === null
+    );
+
+    if (oneOrMoreStudentsContainStandardDismissal) {
+      throw "One or more of the student schedules you selected are standard dismissals and cannot be deleted!";
+    }
+    //FOR LOOP ITERATES FOR MULTIPLE STUDENTS (DELETING ONE ENTRY FROM DATABASE ON EACH LOOP)
+    for (let i = 0; i < students.length; i++) {
+      let student_id = students[i].student_id;
+      let reason = students[i].reason;
+
+      const deleteStudentSchedule = await db("schedule")
+        .select("*")
+        .where("student_id", student_id)
+        .where("reason", reason)
+        .where("date_start", "<=", calendarDate)
+        .where("date_end", ">=", calendarDate)
+        .whereILike("occurrence", `%${dayOfTheWeek}%`)
+        .del();
+    }
+    res.status(200).json({});
+  } catch (error) {
+    res.status(401).json({ error });
   }
 });
 
