@@ -1,8 +1,9 @@
 .adminScheduleContainer {
-  height: 100vh;
-
-  padding: 0 50px;
   background-color: #36454f;
+  background-size: cover;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0 50px;
 }
 .adminScheduleTitle {
   text-align: center;
@@ -12,13 +13,12 @@
 .adminScheduleDates {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 50px;
 }
 .adminTable {
   background-color: white;
   -webkit-box-shadow: 5px 5px 15px 5px #000000;
   box-shadow: 5px 5px 15px 5px #000000;
-
+  margin-bottom: 50px;
 }
 
 .adminIconArrows {

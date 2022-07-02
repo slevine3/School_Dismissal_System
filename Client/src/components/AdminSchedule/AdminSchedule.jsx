@@ -25,31 +25,54 @@ const AdminSchedule = () => {
 
   const [students, setStudents] = useState(null);
 
-
   const columns = [
+    {
+      title: "All Student Details",
+
+      render: (record) => (
+        <React.Fragment>
+          {record.first_name}
+          <br />
+          {record.last_name}
+          <br />
+          {record.dismissal_timestamp}
+
+          <br />
+          {record.dismissal_method}
+          <br />
+          {record.reason}
+        </React.Fragment>
+      ),
+      responsive: ["xs"],
+    },
     {
       title: "First Name",
       dataIndex: "first_name",
       sorter: (a, b) => a.first_name.localeCompare(b.first_name),
+      responsive: ["sm"],
     },
     {
       title: "Last Name",
       dataIndex: "last_name",
       sorter: (a, b) => a.last_name.localeCompare(b.last_name),
+      responsive: ["sm"],
     },
     {
       title: "Time",
       dataIndex: "dismissal_timestamp",
       sorter: (a, b) =>
         a.dismissal_timestamp.localeCompare(b.dismissal_timestamp),
+        responsive: ["sm"],
     },
     {
       title: "Method",
       dataIndex: "dismissal_method",
+      responsive: ["sm"],
     },
     {
       title: "Reason",
       dataIndex: "reason",
+      responsive: ["sm"],
     },
   ];
 

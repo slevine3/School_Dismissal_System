@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "./CurrentSchedule.css";
 import dayjs from "dayjs";
-import { Table, Button, Calendar, Typography, Input } from "antd";
+import { Table, Button, Calendar, Typography, Input, Alert } from "antd";
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -20,9 +20,10 @@ const CurrentSchedule = () => {
   } = useForm();
 
   const user_id = location.state.students[0].parental_id;
-  const [selectionType, setSelectionType] = useState("checkbox");
+
   const [students, setStudents] = useState(location.state?.students);
   const [error, setError] = useState(false);
+  const [warningError, setWarningError] = useState(false);
 
   const todayDate = dayjs().format("YYYY-MM-DD");
 
@@ -62,7 +63,7 @@ const CurrentSchedule = () => {
           {record.first_name}
           <br />
           {record.dismissal_timestamp}
-     
+
           <br />
           {record.dismissal_method}
           <br />
@@ -113,6 +114,7 @@ const CurrentSchedule = () => {
 
   const [calendar, setCalendar] = useState(todayDate);
   const [selectedStudents, setSelectedStudents] = useState(null);
+  const selectionType = null;
   //INCLUDED FROM ANTD - USED FOR SELECTING STUDENTS
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
@@ -136,7 +138,8 @@ const CurrentSchedule = () => {
   //DELETE USER SELECTION - ERROR HANDLING PREVENTS USER FROM DELETING A STANDARD SCHEDULE
   const handleDelete = async (value) => {
     if (!selectedStudents || selectedStudents.length === 0) {
-      setError("Please select a student schedule");
+      setWarningError("Please select a student schedule");
+      setError(null);
     } else {
       try {
         const response = await axiosInstance.delete("/users/delete", {
@@ -153,6 +156,7 @@ const CurrentSchedule = () => {
       } catch (error) {
         console.log(error);
         if (401) {
+          setWarningError(null);
           setError(error.response.data.error);
         }
       }
@@ -218,9 +222,6 @@ const CurrentSchedule = () => {
           </div>
         </div>
         <div className="currentScheduleButton">
-          <div></div>
-          <div></div>
-          <div></div>
           <Input
             type="submit"
             className="currentScheduleDeleteButton"
@@ -254,7 +255,10 @@ const CurrentSchedule = () => {
               color: "red",
             }}
           >
-            {error}
+            {warningError && (
+              <Alert message={warningError} showIcon type="warning" />
+            )}
+            {error && <Alert message={error} showIcon type="error" />}
           </h3>
         </div>
       </form>
