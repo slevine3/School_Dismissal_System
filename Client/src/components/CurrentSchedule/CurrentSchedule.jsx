@@ -55,27 +55,49 @@ const CurrentSchedule = () => {
 
   const columns = [
     {
+      title: "All Student Details",
+
+      render: (record) => (
+        <React.Fragment>
+          {record.first_name}
+          <br />
+          {record.dismissal_timestamp}
+     
+          <br />
+          {record.dismissal_method}
+          <br />
+          {record.reason}
+        </React.Fragment>
+      ),
+      responsive: ["xs"],
+    },
+    {
       title: "First Name",
       dataIndex: "first_name",
-      sorter: (a, b) => a.first_name.localeCompare(b.first_name)
+      sorter: (a, b) => a.first_name.localeCompare(b.first_name),
+      responsive: ["sm"],
     },
     {
       title: "Last Name",
       dataIndex: "last_name",
-      
+      responsive: ["sm"],
     },
     {
       title: "Time",
       dataIndex: "dismissal_timestamp",
-      sorter: (a, b) => a.dismissal_timestamp.localeCompare(b.dismissal_timestamp)
+      sorter: (a, b) =>
+        a.dismissal_timestamp.localeCompare(b.dismissal_timestamp),
+      responsive: ["sm"],
     },
     {
       title: "Method",
       dataIndex: "dismissal_method",
+      responsive: ["sm"],
     },
     {
       title: "Reason",
       dataIndex: "reason",
+      responsive: ["sm"],
     },
   ];
   let data = students && students.map((student) => student);
@@ -111,8 +133,7 @@ const CurrentSchedule = () => {
     setCalendar(calendarDate);
   };
 
-
-    //DELETE USER SELECTION - ERROR HANDLING PREVENTS USER FROM DELETING A STANDARD SCHEDULE
+  //DELETE USER SELECTION - ERROR HANDLING PREVENTS USER FROM DELETING A STANDARD SCHEDULE
   const handleDelete = async (value) => {
     if (!selectedStudents || selectedStudents.length === 0) {
       setError("Please select a student schedule");
