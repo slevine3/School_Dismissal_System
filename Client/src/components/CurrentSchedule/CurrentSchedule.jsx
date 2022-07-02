@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "./CurrentSchedule.css";
 import dayjs from "dayjs";
-import { Divider, Table, Button, Calendar, Typography, Input } from "antd";
+import { Table, Button, Calendar, Typography, Input } from "antd";
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -26,10 +26,11 @@ const CurrentSchedule = () => {
 
   const todayDate = dayjs().format("YYYY-MM-DD");
 
-  //STUDENT TABLE IF NO SCHOOL -- SEE getSchedule() FOR const dayOfTheWeek
+  //STUDENT TABLE TEXT SATURDAY AND SUNDAY -- SEE getSchedule() FOR const dayOfTheWeek
   let locale = {
     emptyText: "No School Today",
   };
+  //RETRIEVES THE DAILY SCHEDULE ACCORDING TO USER SELECTION ON CALENDAR
   const getSchedule = async (value) => {
     let calendarDate = dayjs(value).format("YYYY-MM-DD");
     const dayOfTheWeek = dayjs(calendarDate).format("dddd");
@@ -56,14 +57,17 @@ const CurrentSchedule = () => {
     {
       title: "First Name",
       dataIndex: "first_name",
+      sorter: (a, b) => a.first_name.localeCompare(b.first_name)
     },
     {
       title: "Last Name",
       dataIndex: "last_name",
+      
     },
     {
       title: "Time",
       dataIndex: "dismissal_timestamp",
+      sorter: (a, b) => a.dismissal_timestamp.localeCompare(b.dismissal_timestamp)
     },
     {
       title: "Method",
@@ -76,7 +80,7 @@ const CurrentSchedule = () => {
   ];
   let data = students && students.map((student) => student);
 
-  //ADD KEY TO DATA
+  // TABLE REQUIRES KEY FOR DATA
   let key = 0;
   for (let student in data) {
     if (!(Object.keys === "key")) {
@@ -107,6 +111,8 @@ const CurrentSchedule = () => {
     setCalendar(calendarDate);
   };
 
+
+    //DELETE USER SELECTION - ERROR HANDLING PREVENTS USER FROM DELETING A STANDARD SCHEDULE
   const handleDelete = async (value) => {
     if (!selectedStudents || selectedStudents.length === 0) {
       setError("Please select a student schedule");
@@ -131,8 +137,9 @@ const CurrentSchedule = () => {
       }
     }
   };
-
+  //NAVIGATE TO NEW DISMISSAL PAGE AND PASS STUDENT DATA
   const handleClick = () => {
+    let students = location.state?.students;
     navigate("/update", { state: { students } });
   };
 

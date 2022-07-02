@@ -1,9 +1,9 @@
 import React from "react";
 
-import UpdateSchedule from "../../components/UpdateSchedule/UpdateSchedule";
+import NewDismissal from "../../components/NewDismissal/NewDismissal";
 
 const Update = () => {
-  return <UpdateSchedule />;
+  return <NewDismissal />;
 };
 
 export default Update;

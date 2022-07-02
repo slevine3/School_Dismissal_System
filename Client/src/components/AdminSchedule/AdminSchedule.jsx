@@ -1,15 +1,10 @@
 import React from "react";
 import "./AdminSchedule.css";
 import dayjs from "dayjs";
-import { Divider, Table, DatePicker, Button } from "antd";
-import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import { Table } from "antd";
 import { useState } from "react";
-import { StarOutlined, StarFilled, StarTwoTone } from "@ant-design/icons";
-import { getTwoToneColor, setTwoToneColor } from "@ant-design/icons";
-import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { axiosInstance } from "../../requestMethods";
-
 
 const AdminSchedule = () => {
   useEffect(() => {
@@ -26,37 +21,27 @@ const AdminSchedule = () => {
   }, []);
   //TODAY'S DATE
   const date = new dayjs();
+  const todayDate = date.format("dddd, MMMM D, YYYY ");
 
-  const [selectionType, setSelectionType] = useState("checkbox");
-  const [quarterValue, setQuarterValue] = useState(null);
   const [students, setStudents] = useState(null);
 
-  const [todayDate, setTodayDate] = useState(
-    date.format("dddd, MMMM D, YYYY ")
-  );
-
-  // HANDLE DATE CHANGE CONNECTED TO THE DATEPICKER
-  const handleDateChange = (date, dateString) => {
-    setQuarterValue(dateString);
-  };
-
-  //RETRIEVE DATA FOR PREVIOUS WEEK
-  const handlePreviousWeek = () => {};
-  //RETRIEVE DATA FOR NEXT WEEK
-  const handleNextWeek = () => {};
 
   const columns = [
     {
       title: "First Name",
       dataIndex: "first_name",
+      sorter: (a, b) => a.first_name.localeCompare(b.first_name),
     },
     {
       title: "Last Name",
       dataIndex: "last_name",
+      sorter: (a, b) => a.last_name.localeCompare(b.last_name),
     },
     {
       title: "Time",
       dataIndex: "dismissal_timestamp",
+      sorter: (a, b) =>
+        a.dismissal_timestamp.localeCompare(b.dismissal_timestamp),
     },
     {
       title: "Method",
@@ -80,14 +65,14 @@ const AdminSchedule = () => {
   return (
     <div className="adminScheduleContainer">
       <div className="adminScheduleTitle">
-        <h1>Admin Dismissal Schedule</h1>
+        <h1 style={{ color: "white" }}>Admin Dismissal Schedule</h1>
       </div>
       <div className="adminScheduleDates">
-        <h2> {todayDate}</h2>
+        <h2 style={{ color: "white" }}> {todayDate}</h2>
       </div>
-
-      <Divider />
-      <Table columns={columns} dataSource={data} />
+      <div className="adminTable">
+        <Table columns={columns} dataSource={data} />
+      </div>
     </div>
   );
 };

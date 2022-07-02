@@ -1,33 +1,20 @@
 import React, { useState } from "react";
-import "./UpdateSchedule.css";
+import "./NewDismissal.css";
 import { DatePicker, TimePicker, Checkbox, Input, Table, Switch } from "antd";
 import dayjs from "dayjs";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { axiosInstance } from "../../requestMethods";
-
+import { ArrowLeftOutlined } from "@ant-design/icons";
 const { RangePicker } = DatePicker;
 
-const UpdateSchedule = () => {
+const NewDismissal = () => {
   const navigate = useNavigate();
   //USE LOCATION HOOK RETRIEVES STUDENT DATA FROM LOGIN PAGE
   const location = useLocation();
   const students = location.state?.students;
   const [error, setError] = useState(null);
   const [dateError, setDateError] = useState(null);
-
-  //COLUMNS AND DATA FOR STUDENT TABLE
-  const columns = [
-    {
-      title: "First Name",
-      dataIndex: "first_name",
-    },
-    {
-      title: "Last Name",
-      dataIndex: "last_name",
-    },
-  ];
-
   let data = students && students.map((student) => student);
 
   //ADD KEY TO DATA ACCORDING TO STUDENT_ID
@@ -36,6 +23,33 @@ const UpdateSchedule = () => {
       data[student]["key"] = data[student].student_id;
     }
   }
+
+  //COLUMNS AND DATA FOR STUDENT TABLE
+  const columns = [
+    {
+      title: "Full Name",
+
+      render: (record) => (
+        <React.Fragment>
+          {record.first_name}
+          <br />
+          {record.last_name}
+        </React.Fragment>
+      ),
+      responsive: ["xs"],
+    },
+    {
+      title: "First Name",
+      dataIndex: "first_name",
+      responsive: ["sm"],
+    },
+    {
+      title: "Last Name",
+      dataIndex: "last_name",
+      responsive: ["sm"],
+    },
+  ];
+  console.log(data);
 
   const [selectionType, setSelectionType] = useState("checkbox");
   //INCLUDED FROM ANTD - USED FOR SELECTING STUDENTS
@@ -56,7 +70,7 @@ const UpdateSchedule = () => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm({ defaultValues: { rangePicker: "" } });
+  } = useForm();
 
   //VARIABLES FROM FORMS
 
@@ -116,9 +130,27 @@ const UpdateSchedule = () => {
 
   return (
     <div className="updateContainer">
-      <div>
-        <h1 className="updateTitle">New Dismissal</h1>
+      <div className="updateTitleContainer">
+        <div className="updateArrowIcon">
+          <ArrowLeftOutlined
+            onClick={() => navigate("/home", { state: { students } })}
+            style={{
+              color: "white",
+              fontSize: "40px",
+            }}
+          />
+        </div>
+        <div className="updateTitle">
+          <h1
+            style={{
+              color: "white",
+            }}
+          >
+            New Dismissal
+          </h1>
+        </div>
       </div>
+
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <div className="updateForm">
           <div className="updateStudentsSection">
@@ -166,6 +198,7 @@ const UpdateSchedule = () => {
                   format="dddd, MMMM D, YYYY"
                   style={{
                     marginBottom: "30px",
+                    width: "75%",
                   }}
                 />
               )}
@@ -186,7 +219,7 @@ const UpdateSchedule = () => {
                   showTime
                   size="large"
                   format="h:mm a"
-                  style={{ marginBottom: "30px", width: "250px" }}
+                  style={{ marginBottom: "30px", width: "50%" }}
                 />
               )}
             />
@@ -211,7 +244,7 @@ const UpdateSchedule = () => {
                   maxLength={50}
                   style={{
                     marginBottom: "30px",
-                    width: "250px",
+                    width: "50%",
                     textAlign: "center",
                   }}
                 />
@@ -234,7 +267,7 @@ const UpdateSchedule = () => {
                   maxLength={50}
                   style={{
                     marginBottom: "30px",
-                    width: "250px",
+                    width: "50%",
                     textAlign: "center",
                   }}
                 />
@@ -262,12 +295,7 @@ const UpdateSchedule = () => {
                     {...field}
                     options={weekdays}
                     disabled={switchButton ? false : true}
-                    style={{
-                      marginBottom: "30px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
+                    className="updateCheckbox"
                   />
                 )}
               />
@@ -283,6 +311,7 @@ const UpdateSchedule = () => {
                 backgroundColor: "#4B5F6D",
                 color: "white",
                 cursor: "pointer",
+                marginTop: "30px",
               }}
             />
           </div>
@@ -292,4 +321,4 @@ const UpdateSchedule = () => {
   );
 };
 
-export default UpdateSchedule;
+export default NewDismissal;
