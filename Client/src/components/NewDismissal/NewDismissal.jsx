@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./NewDismissal.css";
-import { DatePicker, TimePicker, Checkbox, Input, Table, Switch } from "antd";
+import { DatePicker, TimePicker, Checkbox, Input, Table } from "antd";
 import dayjs from "dayjs";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
@@ -75,7 +75,6 @@ const NewDismissal = () => {
   //VARIABLES FROM FORMS
 
   const [selectedStudents, setSelectedStudents] = useState(null);
-  const [switchButton, setSwitchButton] = useState(false);
 
   //VALUES FOR RECURRING DATES
   const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -112,12 +111,12 @@ const NewDismissal = () => {
 
       try {
         const response = await axiosInstance.post("/users/create", {
-          selectedStudents, //****NOT PASSED WITH REACT HOOK FORM -- PASSED THROUGH USE STATE****
+          selectedStudents,
           formattedDate_start,
           formattedDate_end,
           formattedTime,
           dismissal_method,
-          reason, //****NOT PASSED WITH REACT HOOK FORM -- PASSED THROUGH USE STATE****
+          reason,
           checkbox,
         });
 
@@ -274,27 +273,19 @@ const NewDismissal = () => {
               )}
             />
 
-            <h3>Will this occur more than once?</h3>
-            <div>
-              <Switch
-                onClick={(value) => setSwitchButton(value)}
-                style={{ marginBottom: "30px" }}
-              />
-            </div>
-            <div className="updateCheckboxContainer">
-              <h3 style={{ marginBottom: "30px" }}>
-                Which days of the week should this occur on?
-              </h3>
+            <h3 style={{ marginBottom: "30px" }}>
+              Which day(s) of the week should this occur on?
+            </h3>
 
+            <div className="updateCheckboxContainer">
               <Controller
                 name="checkbox"
                 control={control}
-                defaultValue={switchButton ? weekdays : weekdays}
+                defaultValue={weekdays}
                 render={({ field, value }) => (
                   <Checkbox.Group
                     {...field}
                     options={weekdays}
-                    disabled={switchButton ? false : true}
                     className="updateCheckbox"
                   />
                 )}
@@ -311,7 +302,7 @@ const NewDismissal = () => {
                 backgroundColor: "#4B5F6D",
                 color: "white",
                 cursor: "pointer",
-                marginTop: "30px",
+                marginTop: "20px",
               }}
             />
           </div>
