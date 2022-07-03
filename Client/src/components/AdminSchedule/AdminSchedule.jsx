@@ -7,14 +7,26 @@ import { useEffect } from "react";
 import { axiosInstance } from "../../requestMethods";
 
 const AdminSchedule = () => {
+  //STUDENT TABLE TEXT SATURDAY AND SUNDAY -- SEE getSchedule() FOR const dayOfTheWeek
+  let locale = {
+    emptyText: "No School Today",
+  };
+
   useEffect(() => {
     const getSchedule = async () => {
-      try {
-        const response = await axiosInstance.get("/admin/");
+      const todayDate = dayjs().format();
+      const dayOfTheWeek = dayjs(todayDate).format("dddd");
 
-        setStudents(response.data.students);
-      } catch (error) {
-        console.log(error);
+      if (dayOfTheWeek === "Saturday" || dayOfTheWeek === "Sunday") {
+        setStudents(null);
+      } else {
+        try {
+          const response = await axiosInstance.get("/admin/");
+
+          setStudents(response.data.students);
+        } catch (error) {
+          console.log(error);
+        }
       }
     };
     getSchedule();
@@ -62,7 +74,7 @@ const AdminSchedule = () => {
       dataIndex: "dismissal_timestamp",
       sorter: (a, b) =>
         a.dismissal_timestamp.localeCompare(b.dismissal_timestamp),
-        responsive: ["sm"],
+      responsive: ["sm"],
     },
     {
       title: "Method",
@@ -94,7 +106,7 @@ const AdminSchedule = () => {
         <h2 style={{ color: "white" }}> {todayDate}</h2>
       </div>
       <div className="adminTable">
-        <Table columns={columns} dataSource={data} />
+        <Table columns={columns} dataSource={data} locale={locale} />
       </div>
     </div>
   );

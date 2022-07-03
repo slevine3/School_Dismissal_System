@@ -95,7 +95,7 @@
 @media screen and (max-width: 600px) {
   .updateForm {
     justify-content: center;
-    max-width: 100vw;
+    max-width: 90vw;
     margin-bottom: 100px;
   }
   .updateStudentsSection {
